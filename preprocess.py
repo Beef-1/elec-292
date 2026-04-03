@@ -3,13 +3,22 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from sklearn.utils import shuffle
+
 
 SAMPLE_SIZE = 1000
 LOC = 6000
 WINDOW_SIZE = 3
+SEGMENT_SIZE = 50
 
 people = ["thiago", "blake", "ethan"]
 activities = ["walking", "jumping"]
+
+all_segments = {
+    "walking": [],
+    "jumping": []
+}
+
 
 def fill_missing(data):
     df = pd.DataFrame(data)
@@ -57,6 +66,12 @@ def plot_before_after(raw, processed, title):
     plt.tight_layout()
     return fig
 
+def segment_signal(data, segment_size):
+    segments = []
+    for i in range(0, len(data) - segment_size, segment_size):
+        segments.append(data[i:i+segment_size])
+    return np.array(segments)
+
 with h5py.File("data.h5", "a") as f:
     with PdfPages("preprocessing.pdf") as pdf:
         for p in people:
@@ -71,7 +86,7 @@ with h5py.File("data.h5", "a") as f:
                 smoothed = moving_average(cleaned, window_size=WINDOW_SIZE)
 
                 #Save back to HDF5
-                path = f"Preprocessed/{p}/{a}"
+                path = f"Pre-processed Data/{p}/{a}"
                 if path in f:
                     del f[path]
                 f[path] = smoothed
@@ -80,3 +95,25 @@ with h5py.File("data.h5", "a") as f:
                 fig = plot_before_after(raw, smoothed, f"{p} - {a}")
                 pdf.savefig(fig)
                 plt.close(fig)
+
+                segments = segment_signal(smoothed, SEGMENT_SIZE)
+                all_segments[a].append(segments)
+
+        for a in activities:
+            combined = np.vstack(all_segments[a])
+            combined = shuffle(combined, random_state=42)
+
+            split = int(0.9 * len(combined))
+            train = combined[:split]
+            test = combined[split:]
+
+            train_path = f"Segmented Data/train/{a}"
+            test_path = f"Segmented Data/test/{a}"
+
+            if train_path in f:
+                del f[train_path]
+            if test_path in f:
+                del f[test_path]
+
+            f.create_dataset(train_path, data=train)
+            f.create_dataset(test_path, data=test)
