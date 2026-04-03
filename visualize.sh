@@ -2,7 +2,7 @@
 
 if [ -f "output/visualizations.pdf" ]; then
     echo "Cleaning files..."
-    rm visualizations.pdf
+    rm output/visualizations.pdf
 fi
 
 echo "Generating PDF file..."

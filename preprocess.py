@@ -8,8 +8,9 @@ from sklearn.utils import shuffle
 
 SAMPLE_SIZE = 1000
 LOC = 6000
-WINDOW_SIZE = 3
-SEGMENT_SIZE = 50
+WINDOW_SIZE_WALKING = 18
+WINDOW_SIZE_JUMPING = 7
+SEGMENT_SIZE = 500
 
 people = ["thiago", "blake", "ethan"]
 activities = ["walking", "jumping"]
@@ -23,8 +24,8 @@ all_segments = {
 def fill_missing(data):
     df = pd.DataFrame(data)
     df.interpolate(method='linear', inplace=True) #Handle missing values with valid data on both sides
-    df.ffill(inplace=True) #Handles esge case of missing value at end of signal
-    df.bfill(inplace=True)  #Handles esge case of missing value at start of signal
+    df.ffill(inplace=True) #Handle missing values with valid data on one side
+    df.bfill(inplace=True) #Handle missing values with valid data on one side
     return df.to_numpy()
 
 def moving_average(data, window_size):
@@ -55,7 +56,7 @@ def plot_before_after(raw, processed, title):
     for i, (ax, label) in enumerate(zip(axes, labels)):
         col = i + 1
         ax.plot(raw[LOC:LOC+SAMPLE_SIZE, col],
-                label="raw", alpha=0.7, color="gray")
+                label="raw", alpha=0.7, color="steelblue")
         ax.plot(processed[LOC:LOC+SAMPLE_SIZE, col],
                 label="filtered", alpha=0.9, color="blue")
         ax.set_ylabel(label)
@@ -65,6 +66,7 @@ def plot_before_after(raw, processed, title):
     axes[-1].set_xlabel("Time (samples)")
     plt.tight_layout()
     return fig
+
 
 def segment_signal(data, segment_size):
     segments = []
@@ -83,7 +85,9 @@ with h5py.File("data.h5", "a") as f:
                 cleaned = fill_missing(raw)
                 if a == "walking":
                     cleaned = remove_outliers(cleaned)
-                smoothed = moving_average(cleaned, window_size=WINDOW_SIZE)
+                    smoothed = moving_average(cleaned, window_size=WINDOW_SIZE_WALKING)
+                else:
+                    smoothed = moving_average(cleaned, window_size=WINDOW_SIZE_JUMPING)
 
                 #Save back to HDF5
                 path = f"Pre-processed Data/{p}/{a}"
