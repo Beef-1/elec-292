@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from sklearn.utils import shuffle
 
-
 SAMPLE_SIZE = 1000
 LOC = 6000
 WINDOW_SIZE_WALKING = 18
@@ -29,7 +28,7 @@ def fill_missing(data):
     return df.to_numpy()
 
 def moving_average(data, window_size):
-    smoothed = np.copy(data).astype(float)
+    smoothed = np.copy(data).astype(float) #Just in case, I chose to copy and return as to not modify original data for modularity
     for col in [1, 2, 3, 4]:  # ax, ay, az, magnitude
         series = pd.Series(data[:, col])
         smoothed[:, col] = series.rolling(
@@ -39,7 +38,7 @@ def moving_average(data, window_size):
     return smoothed
 
 def remove_outliers(data, threshold=5):
-    cleaned = np.copy(data)
+    cleaned = np.copy(data) #Same as before; modularity
     for col in [1, 2, 3, 4]:  # ax, ay, az, magnitude
         col_data = cleaned[:, col]
         mean = np.mean(col_data)
