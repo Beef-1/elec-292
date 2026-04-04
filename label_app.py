@@ -69,7 +69,7 @@ def main():
     inp = QLineEdit()
     out = QLineEdit()
     w = QWidget()
-    w.setWindowTitle("Activity labeler — walking / jumping")
+    w.setWindowTitle("Activity labeler: walking / jumping")
     w.resize(520, 210)
 
     blurb = QLabel(
