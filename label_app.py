@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QToolTip,
     QVBoxLayout,
     QWidget,
 )
@@ -28,6 +29,29 @@ from activity_features import (
 )
 
 WINDOW_SIZE = 50
+
+
+class InfoHintLabel(QLabel):
+    def __init__(self, tooltip, parent):
+        super().__init__("ℹ", parent)
+        self._tooltip = tooltip
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFixedSize(20, 20)
+        self.setAutoFillBackground(False)
+        self.setStyleSheet("QLabel { color: #ffffff; background: transparent; border: none; font-size: 13px; }")
+
+    def enterEvent(self, event):
+        QToolTip.showText(event.globalPosition().toPoint(), self._tooltip, self)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        QToolTip.hideText()
+        super().leaveEvent(event)
+
+
+def info_hint(parent, tooltip):
+    return InfoHintLabel(tooltip, parent)
 
 
 def segment_signal(data, window_size):
@@ -49,8 +73,9 @@ def main():
     w.resize(520, 210)
 
     blurb = QLabel(
-        "Load accelerometer data from a CSV (time plus x, y, z values). The app classifies the signal as "
-        "walking or jumping using the trained model, then writes a CSV of merged time ranges and labels."
+        "Runs the trained classifier on your accelerometer recording: the signal is cleaned like in training, "
+        "split into windows, and each window is scored as walking or jumping. Neighboring windows with the "
+        "same label are merged into ranges with row indices and timestamps for the summary file."
     )
     blurb.setWordWrap(True)
     blurb.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
@@ -93,12 +118,14 @@ def main():
 
     row_in = QHBoxLayout()
     row_in.addWidget(QLabel("Input:"))
-    row_in.addWidget(inp)
+    row_in.addWidget(info_hint(w, "Upload or select a CSV file of accelerometer data (time column plus x, y, z)."))
+    row_in.addWidget(inp, stretch=1)
     row_in.addWidget(binp)
 
     row_out = QHBoxLayout()
     row_out.addWidget(QLabel("Output:"))
-    row_out.addWidget(out)
+    row_out.addWidget(info_hint(w, "Choose where to save the labeled activity summary as a CSV (ranges, times, walking/jumping)."))
+    row_out.addWidget(out, stretch=1)
     row_out.addWidget(bout)
 
     lay = QVBoxLayout(w)
