@@ -64,7 +64,7 @@ def segment_signal(data, window_size):
 def main():
     app = QApplication(sys.argv)
 
-    scaler, clf = load_classifier_artifacts(ROOT)
+    scaler, classifier = load_classifier_artifacts(ROOT)
 
     inp = QLineEdit()
     out = QLineEdit()
@@ -103,7 +103,7 @@ def main():
 
         data = clean_signal(load_csv_as_array(in_path))
 
-        starts, labels = predict_windows(data, scaler, clf, WINDOW_SIZE, segment_signal)
+        starts, labels = predict_windows(data, scaler, classifier, WINDOW_SIZE, segment_signal)
         df = ranges_to_dataframe(merged_label_ranges(data, starts, labels, WINDOW_SIZE))
         df.to_csv(out_path, index=False)
 
