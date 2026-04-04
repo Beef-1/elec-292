@@ -5,6 +5,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -44,8 +45,16 @@ def main():
     inp = QLineEdit()
     out = QLineEdit()
     w = QWidget()
-    w.setWindowTitle("CSV labeler")
-    w.resize(560, 120)
+    w.setWindowTitle("Activity labeler — walking / jumping")
+    w.resize(520, 210)
+
+    blurb = QLabel(
+        "Load accelerometer data from a CSV (time plus x, y, z values). The app classifies the signal as "
+        "walking or jumping using the trained model, then writes a CSV of merged time ranges and labels."
+    )
+    blurb.setWordWrap(True)
+    blurb.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+    blurb.setStyleSheet("color: #ffffff;")
 
     def pick_input():
         path, _ = QFileDialog.getOpenFileName(w, "Open CSV", str(ROOT), "CSV (*.csv)")
@@ -93,6 +102,9 @@ def main():
     row_out.addWidget(bout)
 
     lay = QVBoxLayout(w)
+    lay.setContentsMargins(16, 14, 16, 14)
+    lay.setSpacing(10)
+    lay.addWidget(blurb)
     lay.addLayout(row_in)
     lay.addLayout(row_out)
     lay.addWidget(brun)
