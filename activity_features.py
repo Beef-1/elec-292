@@ -32,8 +32,8 @@ def extract_from_array(window, *, clean_first):
     abs_acc = np.sqrt(x**2 + y**2 + z**2)
 
     def features(sig):
-        if np.std(sig) == 0:
-            skew_val = 0
+        if np.ptp(sig) < 1e-14 or float(np.std(sig)) < 1e-14:
+            skew_val = 0.0
         else:
             skew_val = skew(sig)
 
@@ -61,6 +61,7 @@ def predict_windows(data, scaler, classifier, window_size, segment_signal):
         return np.array([], dtype=int), np.array([], dtype=int)
     X = np.array([extract_from_array(w, clean_first=False) for w in segments])
     X_scaled = scaler.transform(X)
+    X_scaled = np.nan_to_num(X_scaled, nan=0.0)
     y = classifier.predict(X_scaled).astype(int)
     starts = np.arange(len(y), dtype=int) * window_size
     return starts, y
