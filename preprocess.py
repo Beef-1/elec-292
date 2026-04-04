@@ -1,32 +1,16 @@
 import h5py
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+from signal_clean import PREPROCESS_MA_WINDOW, fill_missing, moving_average
+
 SAMPLE_SIZE = 1000
 LOC = 6000
-WINDOW_SIZE = 3
+WINDOW_SIZE = PREPROCESS_MA_WINDOW
 
 people = ["thiago", "blake", "ethan"]
 activities = ["walking", "jumping"]
-
-def fill_missing(data):
-    df = pd.DataFrame(data)
-    df.interpolate(method='linear', inplace=True) #Handle missing values with valid data on both sides
-    df.ffill(inplace=True) #Handles esge case of missing value at end of signal
-    df.bfill(inplace=True)  #Handles esge case of missing value at start of signal
-    return df.to_numpy()
-
-def moving_average(data, window_size):
-    smoothed = np.copy(data).astype(float)
-    for col in [1, 2, 3, 4]:  # ax, ay, az, magnitude
-        series = pd.Series(data[:, col])
-        smoothed[:, col] = series.rolling(
-            window=window_size, 
-            min_periods=1
-        ).mean().to_numpy()
-    return smoothed
 
 def remove_outliers(data, threshold=5):
     cleaned = np.copy(data)
@@ -57,26 +41,23 @@ def plot_before_after(raw, processed, title):
     plt.tight_layout()
     return fig
 
-with h5py.File("data.h5", "a") as f:
-    with PdfPages("preprocessing.pdf") as pdf:
-        for p in people:
-            for a in activities:
-                #Load raw data
-                raw = f["Raw Data"][p][a][:]
+if __name__ == "__main__":
+    with h5py.File("data.h5", "a") as f:
+        with PdfPages("preprocessing.pdf") as pdf:
+            for p in people:
+                for a in activities:
+                    raw = f["Raw Data"][p][a][:]
 
-                #Pre-process
-                cleaned = fill_missing(raw)
-                if a == "walking":
-                    cleaned = remove_outliers(cleaned)
-                smoothed = moving_average(cleaned, window_size=WINDOW_SIZE)
+                    cleaned = fill_missing(raw)
+                    if a == "walking":
+                        cleaned = remove_outliers(cleaned)
+                    smoothed = moving_average(cleaned, window_size=WINDOW_SIZE)
 
-                #Save back to HDF5
-                path = f"Preprocessed/{p}/{a}"
-                if path in f:
-                    del f[path]
-                f[path] = smoothed
+                    path = f"Preprocessed/{p}/{a}"
+                    if path in f:
+                        del f[path]
+                    f[path] = smoothed
 
-                #Save comparison plot to PDF
-                fig = plot_before_after(raw, smoothed, f"{p} - {a}")
-                pdf.savefig(fig)
-                plt.close(fig)
+                    fig = plot_before_after(raw, smoothed, f"{p} - {a}")
+                    pdf.savefig(fig)
+                    plt.close(fig)

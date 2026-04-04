@@ -1,1 +1,9 @@
 .venv/
+*.h5
+*.csv
+*.png
+*.npy
+*.joblib
+*.pdf
+*.json
+__pycache__/

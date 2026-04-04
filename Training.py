@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from joblib import dump
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+from activity_features import CLASSIFIER_PATH
 
 X_train = np.load("X_train.npy")
 X_test = np.load("X_test.npy")
@@ -25,6 +28,8 @@ for it in iter_values:
 final_model = LogisticRegression(max_iter=1000)
 final_model.fit(X_train, y_train)
 y_test_pred = final_model.predict(X_test)
+
+dump(final_model, CLASSIFIER_PATH)
 
 print("Final training accuracy:", final_model.score(X_train, y_train))
 print("Final test accuracy:", accuracy_score(y_test, y_test_pred))
