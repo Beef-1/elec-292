@@ -60,7 +60,7 @@ def plot_magnitude_overlay(walking_data, jumping_data, loc, title):
 
 #This one summarizes the distributions of frequencies, shows how strongly periodic the data is
 #Expected plot: walking is smooth, so less periodic motion; jumping exhibits strong periodic motion
-def plot_freq(data, loc, title):
+def plot_freq(data, loc, title):  #See report for more details (with citations)
     #Extract sample and compute sampling rate from time column
     end = min(loc + SAMPLE_SIZE, len(data))
     sample = data[loc:end]
@@ -89,7 +89,7 @@ def plot_freq(data, loc, title):
 
 #Plots distribution of acceleration values
 #Expected plot: Walking occupies lower acceleration, jumping higher accel.
-def plot_magnitude_histogram(walking_data, jumping_data, person):
+def plot_magnitude_histogram(walking_data, jumping_data, person): 
     fig, ax = plt.subplots()
 
     ax.hist(walking_data[:, 4], bins=50, alpha=0.5, label="walking")
@@ -104,7 +104,7 @@ def plot_magnitude_histogram(walking_data, jumping_data, person):
 
 #Heatmap for acceleration 
 #Expected plot: Walking should have lower values for everything, running should show higher variance in specific directions
-def plot_correlation_heatmap(data, loc, title):
+def plot_correlation_heatmap(data, loc, title): #See report for more details (with citations)
     end = min(loc + SAMPLE_SIZE, len(data))
     axes_data = data[loc:end, 1:4]
 

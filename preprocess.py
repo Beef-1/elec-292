@@ -12,7 +12,7 @@ WINDOW_SIZE = PREPROCESS_MA_WINDOW
 people = ["thiago", "blake", "ethan"]
 activities = ["walking", "jumping"]
 
-def remove_outliers(data, threshold=5):
+def remove_outliers(data, threshold=5): #See report for more details (with citations)
     cleaned = np.copy(data)
     for col in [1, 2, 3, 4]:  # ax, ay, az, magnitude
         col_data = cleaned[:, col]
