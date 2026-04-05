@@ -24,8 +24,8 @@ y_test = np.concatenate([
     np.ones(len(X_test_jumping))
 ])
 
-X_train_feat = np.array([extract_from_array(w) for w in X_train])
-X_test_feat = np.array([extract_from_array(w) for w in X_test])
+X_train_feat = np.array([extract_from_array(w, clean_first=True) for w in X_train])
+X_test_feat = np.array([extract_from_array(w, clean_first=True) for w in X_test])
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_feat)
