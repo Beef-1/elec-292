@@ -142,6 +142,22 @@ def main():
     w.live_stop_event = None
     w.live_queue = None
 
+    w.setStyleSheet("""
+        QWidget {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        QLineEdit {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            padding: 4px;
+        }
+        QPushButton {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+    """)
+
     blurb = QLabel(
         "Runs the trained classifier on your accelerometer recording: the signal is cleaned like in training, "
         "split into windows, and each window is scored as walking or jumping. Neighboring windows with the "
