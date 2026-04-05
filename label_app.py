@@ -71,16 +71,16 @@ def segment_signal(data, window_size):
 def phyphox_polling_loop(host, scaler, classifier, window_size, stop_event, out_q):
     time_buf = "acc_time"
     axes = ("accX", "accY", "accZ")
-    cols = (time_buf, *axes)
+    cols = (time_buf, "accX", "accY", "accZ")
     last_t = 0.0
     row_buffer = []
     recent_preds = []
-    buf_cap = window_size * 5
+    buf_cap = window_size * 10
     base_url = "http://" + host.strip().lstrip("/")
 
     while not stop_event.is_set():
-        q = f"{time_buf}={last_t:.4f}&" + "&".join(f"{c}={last_t:.4f}|{time_buf}" for c in cols)
-        url = f"{base_url}/get?{q}"
+        query = f"{time_buf}={last_t:.4f}&" + "&".join(f"{c}={last_t:.4f}|{time_buf}" for c in cols)
+        url = f"{base_url}/get?{query}"
         try:
             with urllib.request.urlopen(url) as r:
                 data = json.loads(r.read().decode())
@@ -229,11 +229,7 @@ def main():
 
         w.live_queue = SimpleQueue()
         w.live_stop_event = threading.Event()
-        w.live_thread = threading.Thread(
-            target=phyphox_polling_loop,
-            args=(host, scaler, classifier, WINDOW_SIZE, w.live_stop_event, w.live_queue),
-            daemon=True,
-        )
+        w.live_thread = threading.Thread(target=phyphox_polling_loop, args=(host, scaler, classifier, WINDOW_SIZE, w.live_stop_event, w.live_queue), daemon=True)
         btn_live.setText("Stop live")
         ip_phyphox.setEnabled(False)
         lbl_live_activity.setText("Collecting…")

@@ -1,6 +1,5 @@
 .venv/
 *.h5
-*.csv
 *.png
 *.npy
 *.joblib
